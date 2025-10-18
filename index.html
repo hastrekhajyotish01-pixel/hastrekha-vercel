@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hastrekha Jyotish - Payment Form</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .form-container {
+      max-width: 650px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #004999;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Hastrekha Jyotish Form</h2>
+    <form id="paymentForm">
+      <label>पूरा नाम:</label>
+      <input type="text" name="customer_name" required />
+
+      <label>मोबाइल नंबर:</label>
+      <input type="text" name="customer_phone" required />
+
+      <label>ईमेल:</label>
+      <input type="email" name="customer_email" required />
+
+      <label>लिंग:</label>
+      <select name="gender" required>
+        <option value="">Select</option>
+        <option value="पुरुष">पुरुष</option>
+        <option value="महिला">महिला</option>
+      </select>
+
+      <label>जन्म का वर्ष:</label>
+      <select name="birth_year" id="birth_year" required>
+        <option value="">Select Year</option>
+      </select>
+
+      <label>अपना प्रश्न लिखें:</label>
+      <textarea name="special_question" placeholder="अपना सवाल यहां लिखें" rows="3"></textarea>
+
+      <label>हथेली की फोटो अपलोड करें:</label>
+      <input type="file" name="palm_images" multiple accept="image/*" required />
+
+      <button type="submit">Make Payment ₹199</button>
+    </form>
+  </div>
+
+  <script>
+    // Populate years dynamically
+    const yearSelect = document.getElementById("birth_year");
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear; y >= 1950; y--) {
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      yearSelect.appendChild(opt);
+    }
+
+    document.getElementById("paymentForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const customer_name = formData.get("customer_name");
+      const customer_email = formData.get("customer_email");
+      const customer_phone = formData.get("customer_phone");
+
+      const response = await fetch("/api/create_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer_name, customer_email, customer_phone })
+      });
+
+      const data = await response.json();
+      if (data && data.payment_link) {
+        window.location.href = data.payment_link;
+      } else {
+        alert("Error: " + (data.error || "Unable to create order"));
+      }
+    });
+  </script>
+</body>
+</html>
